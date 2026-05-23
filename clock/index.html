@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>25软件一班_2502011052_周语歆_时钟与计算器</title>
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --text: #2c3e50;
+            --accent: #5b9bd5;
+            --accent2: #e74c3c;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            --radius: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #e8edf5 0%, #f0f4f8 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        /* 卡片通用样式 */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+        }
+        .card h2 {
+            font-size: 1.4rem;
+            color: var(--text);
+            margin-bottom: 25px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* ========== 时钟样式 ========== */
+        .clock-card {
+            flex: 1 1 380px;
+            min-width: 320px;
+        }
+        .clock-face {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 50% 50%, #fafbfc, #eef2f7);
+            box-shadow: inset 0 4px 12px rgba(0,0,0,0.06), 0 8px 25px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(0deg);
+            border-radius: 4px;
+            transition: transform 0.05s linear;
+        }
+        .hour-hand {
+            width: 6px;
+            height: 60px;
+            background: #2c3e50;
+            z-index: 3;
+        }
+        .minute-hand {
+            width: 4px;
+            height: 80px;
+            background: #34495e;
+            z-index: 2;
+        }
+        .second-hand {
+            width: 2px;
+            height: 90px;
+            background: #e74c3c;
+            z-index: 1;
+        }
+        .center-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 14px;
+            height: 14px;
+            background: #e74c3c;
+            border-radius: 50%;
+            z-index: 4;
+            box-shadow: 0 0 8px rgba(231, 76, 60, 0.4);
+        }
+        .clock-face .number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #555;
+            transform: translate(-50%, -50%) rotate(calc(var(--angle) * 1deg)) translate(0, -105px) rotate(calc(var(--angle) * -1deg));
+        }
+        .digital-clock {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 2px;
+            font-variant-numeric: tabular-nums;
+        }
+        .date-display {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ========== 计算器样式 ========== */
+        .calc-card {
+            flex: 1 1 360px;
+            min-width: 300px;
+        }
+        .calc-display {
+            width: 100%;
+            background: #f5f7fa;
+            border-radius: 14px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            text-align: right;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+            min-height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            word-break: break-all;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.04);
+        }
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+        .calc-buttons button {
+            padding: 18px 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f0f3f7;
+            color: var(--text);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+        .calc-buttons button:hover {
+            background: #e4e9f0;
+        }
+        .calc-buttons button:active {
+            transform: scale(0.96);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .calc-buttons .operator {
+            background: #e8f0fe;
+            color: #5b9bd5;
+        }
+        .calc-buttons .operator:hover {
+            background: #d6e4fa;
+        }
+        .calc-buttons .equals {
+            background: var(--accent);
+            color: white;
+        }
+        .calc-buttons .equals:hover {
+            background: #4a8ac2;
+        }
+        .calc-buttons .clear {
+            background: #fdeaea;
+            color: var(--accent2);
+        }
+        .calc-buttons .clear:hover {
+            background: #f9d6d6;
+        }
+        .calc-buttons .zero {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 750px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .card {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- 时钟卡片 -->
+        <div class="card clock-card">
+            <h2>🕐 网页时钟</h2>
+            <div class="clock-face" id="clockFace">
+                <!-- 刻度数字 1~12 -->
+            </div>
+            <div class="digital-clock" id="digitalClock">00:00:00</div>
+            <div class="date-display" id="dateDisplay"></div>
+        </div>
+
+        <!-- 计算器卡片 -->
+        <div class="card calc-card">
+            <h2>🧮 计算器</h2>
+            <div class="calc-display" id="calcDisplay">0</div>
+            <div class="calc-buttons">
+                <button class="clear" onclick="calculator.clear()">C</button>
+                <button class="operator" onclick="calculator.input('(')">(</button>
+                <button class="operator" onclick="calculator.input(')')">)</button>
+                <button class="operator" onclick="calculator.input('/')">÷</button>
+
+                <button onclick="calculator.input('7')">7</button>
+                <button onclick="calculator.input('8')">8</button>
+                <button onclick="calculator.input('9')">9</button>
+                <button class="operator" onclick="calculator.input('*')">×</button>
+
+                <button onclick="calculator.input('4')">4</button>
+                <button onclick="calculator.input('5')">5</button>
+                <button onclick="calculator.input('6')">6</button>
+                <button class="operator" onclick="calculator.input('-')">−</button>
+
+                <button onclick="calculator.input('1')">1</button>
+                <button onclick="calculator.input('2')">2</button>
+                <button onclick="calculator.input('3')">3</button>
+                <button class="operator" onclick="calculator.input('+')">+</button>
+
+                <button class="zero" onclick="calculator.input('0')">0</button>
+                <button onclick="calculator.input('.')">.</button>
+                <button class="equals" onclick="calculator.calculate()">=</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ==================== 时钟功能 ====================
+        function initClock() {
+            const clockFace = document.getElementById('clockFace');
+            // 生成刻度数字 1~12
+            for (let i = 1; i <= 12; i++) {
+                const numEl = document.createElement('div');
+                numEl.className = 'number';
+                numEl.style.setProperty('--angle', i * 30);
+                numEl.textContent = i;
+                clockFace.appendChild(numEl);
+            }
+            // 时针、分针、秒针
+            const hands = ['hour', 'minute', 'second'];
+            hands.forEach(type => {
+                const hand = document.createElement('div');
+                hand.className = `hand ${type}-hand`;
+                hand.id = `${type}Hand`;
+                clockFace.appendChild(hand);
+            });
+            // 中心点
+            const dot = document.createElement('div');
+            dot.className = 'center-dot';
+            clockFace.appendChild(dot);
+
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours() % 12;
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            // 更新指针角度
+            const hourDeg = (hours + minutes / 60) * 30;  // 每小时 30 度
+            const minuteDeg = (minutes + seconds / 60) * 6; // 每分钟 6 度
+            const secondDeg = seconds * 6;
+
+            const hourHand = document.getElementById('hourHand');
+            const minuteHand = document.getElementById('minuteHand');
+            const secondHand = document.getElementById('secondHand');
+
+            if (hourHand) hourHand.style.transform = `translateX(-50%) rotate(${hourDeg}deg)`;
+            if (minuteHand) minuteHand.style.transform = `translateX(-50%) rotate(${minuteDeg}deg)`;
+            if (secondHand) secondHand.style.transform = `translateX(-50%) rotate(${secondDeg}deg)`;
+
+            // 数字时钟
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('digitalClock').textContent = `${h}:${m}:${s}`;
+
+            // 日期显示
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            const y = now.getFullYear();
+            const mo = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            const w = weekdays[now.getDay()];
+            document.getElementById('dateDisplay').textContent = `${y}年${mo}月${d}日 星期${w}`;
+        }
+
+        // ==================== 计算器功能 ====================
+        class Calculator {
+            constructor(displayId) {
+                this.display = document.getElementById(displayId);
+                this.expression = '';
+                this.clear();
+            }
+
+            clear() {
+                this.expression = '';
+                this.display.textContent = '0';
+            }
+
+            input(value) {
+                if (this.expression === '' && /[+\-*/]/.test(value)) return; // 避免以运算符开头
+                this.expression += value;
+                this.display.textContent = this.expression.replace(/\*/g, '×').replace(/\//g, '÷');
+            }
+
+            calculate() {
+                try {
+                    if (this.expression.trim() === '') return;
+                    // 安全计算
+                    const result = Function('"use strict"; return (' + this.expression + ')')();
+                    this.display.textContent = result;
+                    this.expression = String(result);
+                } catch (e) {
+                    this.display.textContent = '错误';
+                    this.expression = '';
+                }
+            }
+        }
+
+        const calculator = new Calculator('calcDisplay');
+
+        // 键盘支持
+        document.addEventListener('keydown', (e) => {
+            const key = e.key;
+            if (/[0-9+\-*/%.()]/.test(key)) {
+                e.preventDefault();
+                calculator.input(key);
+            } else if (key === 'Enter' || key === '=') {
+                e.preventDefault();
+                calculator.calculate();
+            } else if (key === 'Escape' || key === 'c' || key === 'C') {
+                e.preventDefault();
+                calculator.clear();
+            }
+        });
+
+        // 初始化时钟
+        initClock();
+    </script>
+</body>
+</html>
